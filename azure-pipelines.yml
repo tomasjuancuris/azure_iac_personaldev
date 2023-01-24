@@ -1,0 +1,27 @@
+trigger:
+- main
+
+variables:
+  resourceGroupName: ''
+  azureSubscription: 'AzureConnection'
+
+pool:
+  vmImage: windows-latest
+
+stages:
+- stage: Build
+  jobs:
+    - job: Build
+      steps:
+      - task: AzureCLI@2  
+        displayName: 'build bicep artifact' 
+        inputs: 
+          azureSubscription: $(azureSubscription) 
+          scriptType: 'pscore'  
+          scriptLocation: 'inlineScript'  
+          inlineScript: 'az bicep build --file main.bicep'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          ArtifactName: 'finishedTemplate'
+          publishLocation: 'Container'
