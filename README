@@ -1,0 +1,29 @@
+1. DEVELOP BICEP TEMPLATE
+
+    The best and fastest way of creating a bicep file is by using VSCode + Bicep extension.
+    - Create a project folder locally on your computer.
+    - Then create a bicep file named main.bicep and start planning your infrastructure. By default the deployment scope is set to resourceGroup
+      but it can be changed to managementGroup or subscription level.
+    - Ideally, use GIT for code versioning and CI/CD enablement.
+
+    - ATENTION: if you try to replicate this process in your Azure subscription, please remember to create the resource group before deploying the template.
+
+
+2. INSTALL AZURE CLI LOCALLY AND AUTHENTICATE TO YOUR AZURE ACCOUNT
+
+    2A. https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli
+        https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli
+
+    2B. Open Powershell or Command Prompt and execute az login (a web browser window will pop up, there you can enter your credentials)
+
+
+3. DEPLOY BICEP TEMPLATE
+
+    3A. Open Powershell or Command Prompt and execute
+        az deployment group create --name ExampleDeployment --resource-group dev_rg --template-file "C:\Users\tomas\OneDrive\az_iac_bicep\main.bicep"
+    
+    - ATENTION: if you try to replicate this process in your Azure subscription, please remember to change the values for name, resource group and template file path.
+
+
+For further information and tutorials about Bicep, please visit Microsoft´s official documentation:
+https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/
