@@ -2,8 +2,11 @@ trigger:
 - main
 
 variables:
-  resourceGroupName: ''
+  DEVresourceGroupName: 'dev_rg'
+  TESTresourceGroupName: 'test_rg'
+  PRODresourceGroupName: 'prd_rg'
   azureSubscription: 'AzureConnection'
+  location: 'eastus'
 
 pool:
   vmImage: windows-latest
@@ -21,7 +24,57 @@ stages:
           scriptLocation: 'inlineScript'  
           inlineScript: 'az bicep build --file main.bicep'
       - task: PublishBuildArtifacts@1
+        displayName: 'Publish artifact in pipeline'
         inputs:
-          PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+          PathtoPublish: '$(Build.ArtifactStagingDirectory)/main.json'
           ArtifactName: 'finishedTemplate'
           publishLocation: 'Container'
+
+- stage:  Deploy
+  jobs:
+  - deployment: biceptoAzure
+    displayName: 'Deploy bicep to Azure'
+    environment: 'AzureDeployment'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: AzureCLI@2
+            displayName: 'deploy bicep template to DEV'
+            inputs:
+              azureSubscription: $(azureSubscription) 
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create  `
+                --template-file $(Build.SourcesDirectory)/main.bicep `
+                --parameters $(Build.SourcesDirectory)/main.parameters.json `
+                --resource-group $(DEVResourceGroupName) `
+                --parameters resourcePrefix=$(resourceprefix)
+
+          - task: AzureCLI@2
+            displayName: 'deploy bicep template to TEST'
+            inputs:
+              azureSubscription: $(azureSubscription) 
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create  `
+                --template-file $(Build.SourcesDirectory)/main.bicep `
+                --parameters $(Build.SourcesDirectory)/main.parameters.json `
+                --resource-group $(ResourceGroupName) `
+                --parameters resourcePrefix=$(resourceprefix)
+
+          - task: AzureCLI@2
+            displayName: 'deploy bicep template to PRD'
+            inputs:
+              azureSubscription: $(azureSubscription) 
+              scriptType: 'pscore'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az deployment group create  `
+                --template-file $(Build.SourcesDirectory)/main.bicep `
+                --parameters $(Build.SourcesDirectory)/main.parameters.json `
+                --resource-group $(ResourceGroupName) `
+                --parameters resourcePrefix=$(resourceprefix)
